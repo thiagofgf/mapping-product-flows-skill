@@ -5,7 +5,7 @@ OUT = sys.argv[2] if len(sys.argv) > 2 else 'controls.json'
 if not os.path.isdir(ROOT):
     sys.exit(f'extract_controls: not a directory: {ROOT}')
 SKIP = ('(platform-admin)', '__tests__', '.test.', '/api/')
-attr = re.compile(r'''\b(?:aria-label|title|placeholder|label)=["{]`?([^"`}]{3,80})["`}]''')
+attr = re.compile(r'''\b(?:aria-label|title|placeholder|label)=["'{]`?([^"'`}]{3,80})["'`}]''')
 btn = re.compile(r'<(?:button|Button|DropdownMenuItem|MenuItem|Link|a)\b[^>]*>\s*(?:\{[^}]*\}\s*)*([A-Z][^<>{}\n]{2,60}?)\s*<')
 label_kv = re.compile(r'''\blabel:\s*['"]([^'"]{3,60})['"]''')
 out = {}
