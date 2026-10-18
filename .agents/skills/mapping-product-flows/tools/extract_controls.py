@@ -3,7 +3,7 @@ import os, re, sys, json
 ROOT = sys.argv[1] if len(sys.argv) > 1 else 'src/app'  # usage: extract_controls.py <app source dir> [out.json]
 OUT = sys.argv[2] if len(sys.argv) > 2 else 'controls.json'
 SKIP = ('(platform-admin)', '__tests__', '.test.', '/api/')
-attr = re.compile(r'''(?:aria-label|title|placeholder|label)=["{]`?([^"`}]{3,80})["`}]''')
+attr = re.compile(r'''\b(?:aria-label|title|placeholder|label)=["{]`?([^"`}]{3,80})["`}]''')
 btn = re.compile(r'<(?:button|Button|DropdownMenuItem|MenuItem|Link|a)\b[^>]*>\s*(?:\{[^}]*\}\s*)*([A-Z][^<>{}\n]{2,60}?)\s*<')
 label_kv = re.compile(r'''\blabel:\s*['"]([^'"]{3,60})['"]''')
 out = {}

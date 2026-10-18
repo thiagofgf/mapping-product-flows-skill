@@ -14,6 +14,8 @@ export const { chromium } = require('playwright')
 export const BASE = process.env.FLOWMAP_BASE || 'http://127.0.0.1:3000'
 const DIR = process.env.FLOWMAP_DIR || '/tmp/flowmap'
 export const WS = BASE + (process.env.FLOWMAP_WS || '')
+// Path only: query strings and hashes can carry auth codes and tokens, so they are never logged or saved.
+const safePath = u => u.replace(BASE, '').replace(/[?#].*$/, '')
 const STATE = fs.existsSync(`${DIR}/seed/state.json`) ? JSON.parse(fs.readFileSync(`${DIR}/seed/state.json`, 'utf8')) : { people: {} }
 export const PEOPLE = STATE.people
 export const SEED = STATE
@@ -54,7 +56,7 @@ export async function session(journey, persona = 'Marina', opts = {}) {
       const file = `${out}/${id}.png`
       if (extra.locator) await extra.locator.screenshot({ path: file })
       else await page.screenshot({ path: file, fullPage: !!extra.full })
-      const step = { id, title, url: page.url().replace(BASE, '').replace(process.env.FLOWMAP_WS || '\u0000', '…'), file, ...('desc' in extra ? { desc: extra.desc } : {}) }
+      const step = { id, title, url: safePath(page.url()).replace(process.env.FLOWMAP_WS || '\u0000', '…'), file, ...('desc' in extra ? { desc: extra.desc } : {}) }
       const i = steps.findIndex(x => x.id === id); if (i >= 0) steps[i] = step; else steps.push(step)
       fs.writeFileSync(`${out}/steps.json`, JSON.stringify(steps, null, 2))
       console.log(`shot ${id} ${step.url}`)
@@ -64,7 +66,7 @@ export async function session(journey, persona = 'Marina', opts = {}) {
       const items = await page.locator('button, a, [role=button], [role=menuitem], [role=tab], [role=option], input, textarea, select').evaluateAll(els => els
         .filter(e => e.offsetParent !== null || e.getClientRects().length)
         .map(e => `${e.tagName.toLowerCase()}${e.getAttribute('role') ? '[' + e.getAttribute('role') + ']' : ''} ${(e.getAttribute('aria-label') || e.getAttribute('placeholder') || e.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 60)}`))
-      console.log(`--- controls ${label} (${page.url().replace(BASE, '')}):\n` + [...new Set(items)].filter(x => !(process.env.FLOWMAP_DUMP_HIDE && new RegExp(process.env.FLOWMAP_DUMP_HIDE).test(x))).slice(0, 120).join('\n'))
+      console.log(`--- controls ${label} (${safePath(page.url())}):\n` + [...new Set(items)].filter(x => !(process.env.FLOWMAP_DUMP_HIDE && new RegExp(process.env.FLOWMAP_DUMP_HIDE).test(x))).slice(0, 120).join('\n'))
     },
     async close() { await browser.close() },
   }
@@ -105,6 +107,7 @@ export async function clickItem(page, re) {
 // Click the first result row rendered right under a search input inside a popover.
 export async function clickFirstResult(page, input, offset = 40) {
   const b = await input.boundingBox()
+  if (!b) throw new Error('clickFirstResult: input is not visible')
   await page.mouse.click(b.x + 70, b.y + b.height + offset)
 }
 

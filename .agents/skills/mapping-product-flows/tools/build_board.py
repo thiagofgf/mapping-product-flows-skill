@@ -71,6 +71,8 @@ def wrap(text, width, size, family):
 
 
 def text(x, y, s, size=20, family=5, color=INK, w=None, align='left'):
+    if not s:
+        return None  # an empty text element breaks the Excalidraw scene restore
     lines = s.split('\n')
     width = w if w is not None else max(len(l) for l in lines) * char_w(size, family)
     el = base(id=nid('t'), type='text', x=x, y=y, width=width, height=size * 1.25 * len(lines), text=s,
@@ -117,7 +119,8 @@ def arrow(a, b, pts, label=None, dashed=False, label_at=None):
 
 def card_height(step):
     desc = wrap(step.get('desc', ''), THUMB_W, 16, 6) if step.get('desc') else ''
-    return 54 + THUMB_H + 40 + (desc.count('\n') + 1) * 20 + 14 if desc else 54 + THUMB_H + 48
+    route_h = 24 if step.get('route') else 0
+    return 54 + THUMB_H + 40 + route_h + (desc.count('\n') + 1) * 20 + 14 if desc else 54 + THUMB_H + 48 + route_h
 
 
 # Header

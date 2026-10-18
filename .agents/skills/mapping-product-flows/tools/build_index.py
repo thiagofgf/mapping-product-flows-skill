@@ -23,6 +23,8 @@ def wrap(t, w, size, fam):
     for para in t.split('\n'): out.extend(textwrap.wrap(para, n) or [''])
     return '\n'.join(out)
 def text(x, y, s, size=20, fam=6, color=INK, w=None):
+    if not s:
+        return 0  # an empty text element breaks the Excalidraw scene restore
     lines = s.split('\n'); width = w if w is not None else max(len(l) for l in lines) * cw(size, fam)
     els.append(base(id=f't{seq[0]}', type='text', x=x, y=y, width=width, height=size * 1.25 * len(lines), text=s, originalText=s, fontSize=size, fontFamily=fam,
                     textAlign='left', verticalAlign='top', containerId=None, autoResize=True, lineHeight=1.25, strokeColor=color, strokeWidth=1, roughness=0))
@@ -55,19 +57,22 @@ for row in range(0, len(spec['areas']), COLS):
     for a in chunk:
         d = json.load(open(a['spec']))
         lanes = d['lanes']; shots = [s['shot'] for l in lanes for s in l['steps'] if s.get('shot')]
-        emails = len({s['shot'] for l in lanes for s in l['steps'] if s.get('kind') == 'email'})
+        emails = len({s['shot'] for l in lanes for s in l['steps'] if s.get('kind') == 'email' and s.get('shot')})
         ucs = '\n'.join(wrap(f"{l['code']}  {l['title']}", TW - 60, 17, 6) for l in lanes)
         tiles.append((a, lanes, shots, emails, ucs))
-    th = max(110 + 380 + 60 + 22 * (t[4].count('\n') + 1) + 40 for t in tiles)
+    IMG_H = (TW - 56) / 1.6  # thumbnail height, same expression used to draw it
+    th = max(110 + IMG_H + 26 + 22 * (t[4].count('\n') + 1) + 30 for t in tiles)
     for c, (a, lanes, shots, emails, ucs) in enumerate(tiles):
-        x = c * (TW + GAP); st = lanes[0].get('state', 'prod'); sl, ss, sf = STATE[st]
+        x = c * (TW + GAP); st = lanes[0].get('state', 'prod') if lanes else 'prod'; sl, ss, sf = STATE.get(st, STATE['prod'])
         rect(x, y, TW, th, '#adb5bd', '#ffffff', sw=2, rough=1)
         text(x + 28, y + 24, f"{a['n']} · {a['name']}", 32, 5)
         bw = len(sl) * cw(16, 6) + 26; rect(x + TW - bw - 24, y + 28, bw, 30, ss, sf); text(x + TW - bw - 11, y + 34, sl, 16, 6, ss)
         uniq = len(set(shots)) - emails
         text(x + 28, y + 74, f"{len(lanes)} {T['uc']} · {uniq} {T['screens']}" + (f" · {emails} {T['emails']}" if emails else '') + f"  ·  {a['file']}", 18, 6, MUTED)
-        image(x + 28, y + 110, TW - 56, (TW - 56) / 1.6, a.get('thumb') or shots[0])
-        text(x + 28, y + 110 + (TW - 56) / 1.6 + 26, ucs, 17, 6, '#343a40', w=TW - 56)
+        thumb = a.get('thumb') or (shots[0] if shots else None)
+        if thumb:
+            image(x + 28, y + 110, TW - 56, IMG_H, thumb)
+        text(x + 28, y + 110 + IMG_H + 26, ucs, 17, 6, '#343a40', w=TW - 56)
     y += th + GAP
 y += 30
 fh = 84 + sum(max(34, 19 * 1.25 * (wrap(t, W - 220, 19, 6).count('\n') + 1) + 10) for _, t in spec['findings']) + 30
