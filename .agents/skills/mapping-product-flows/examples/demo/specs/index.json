@@ -1,0 +1,15 @@
+{
+  "title": "Tasklet · product flow map",
+  "subtitle": "Example output of the mapping-product-flows skill on a fictional app. Every node is a real screenshot of the demo pages; the e-mails and the identity provider are part of the journeys.",
+  "lang": "en",
+  "kpis": [[6, "use cases"], [14, "screens"], [2, "e-mails"], [2, "third-party steps"], [2, "area boards"]],
+  "legend": [["In production", "#2f9e44", "#ebfbee"], ["Behind a flag", "#e67700", "#fff9db"], ["App screen", "#1971c2", "#e7f1fb"], ["E-mail", "#0c8599", "#e3fafc"], ["Third party", "#495057", "#f8f9fa"], ["Loose end", "#c92a2a", "#fff5f5"]],
+  "areas": [
+    {"n": "01", "name": "Access and account", "spec": "specs/01-access.json", "file": "01-access.excalidraw", "thumb": "shots/access/01-signup.png"},
+    {"n": "02", "name": "Tasks", "spec": "specs/02-tasks.json", "file": "02-tasks.excalidraw", "thumb": "shots/tasks/01-tasks.png"}
+  ],
+  "findings": [
+    ["medium", "\"Forgot password?\" leads to a 404: an account that loses its password cannot be recovered (UC-ACC-04)."],
+    ["low", "The identity provider shows auth.tasklet-infra.example instead of Tasklet on the account chooser (UC-ACC-02)."]
+  ]
+}

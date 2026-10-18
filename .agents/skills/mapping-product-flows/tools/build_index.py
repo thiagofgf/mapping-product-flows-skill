@@ -4,9 +4,9 @@ import base64, hashlib, json, sys, textwrap
 spec = json.load(open(sys.argv[1])); OUT = sys.argv[2]
 INK, MUTED = '#1e1e1e', '#5c5f66'
 LANG = spec.get('lang', 'en')  # 'en' (default) or 'pt'
-T = {'en': dict(sev={'high': 'High', 'medium': 'Medium', 'low': 'Low'}, uc='use cases', screens='screens', emails='e-mails', findings='Loose ends, by severity',
+T = {'en': dict(sev={'high': 'High', 'medium': 'Medium', 'low': 'Low'}, uc='use cases', screens='screens', emails='e-mails', email1='e-mail', findings='Loose ends, by severity',
                 state={'prod': 'In production', 'flag': 'Behind a flag', 'dormant': 'Hidden in the UI', 'outside': 'Outside the app'}),
-     'pt': dict(sev={'high': 'Alto', 'medium': 'Médio', 'low': 'Baixo'}, uc='casos de uso', screens='telas', emails='e-mails', findings='Pontas soltas, por gravidade',
+     'pt': dict(sev={'high': 'Alto', 'medium': 'Médio', 'low': 'Baixo'}, uc='casos de uso', screens='telas', emails='e-mails', email1='e-mail', findings='Pontas soltas, por gravidade',
                 state={'prod': 'Em produção', 'flag': 'Atrás de flag', 'dormant': 'Escondido na UI', 'outside': 'Fora do app'})}[LANG]
 SEV_KEY = {'high': 'high', 'alto': 'high', 'medium': 'medium', 'médio': 'medium', 'medio': 'medium', 'low': 'low', 'baixo': 'low'}
 SEV_COLORS = {'high': ('#c92a2a', '#fff5f5'), 'medium': ('#e67700', '#fff9db'), 'low': ('#495057', '#f8f9fa')}
@@ -43,7 +43,7 @@ W = COLS * TW + (COLS - 1) * GAP
 y = 0
 text(0, y, spec['title'], 52, 5); y += 80
 y += text(0, y, wrap(spec['subtitle'], W, 22, 6), 22, 6, MUTED) + 40
-kw = (W - (len(spec['kpis']) - 1) * 30) / len(spec['kpis'])
+kw = (W - (len(spec['kpis']) - 1) * 30) / len(spec['kpis']) if spec['kpis'] else W
 for i, (n, label) in enumerate(spec['kpis']):
     x = i * (kw + 30); rect(x, y, kw, 150, '#ced4da', '#ffffff')
     text(x + 30, y + 22, str(n), 64, 5); text(x + 30, y + 104, label, 22, 6, MUTED)
@@ -68,7 +68,7 @@ for row in range(0, len(spec['areas']), COLS):
         text(x + 28, y + 24, f"{a['n']} · {a['name']}", 32, 5)
         bw = len(sl) * cw(16, 6) + 26; rect(x + TW - bw - 24, y + 28, bw, 30, ss, sf); text(x + TW - bw - 11, y + 34, sl, 16, 6, ss)
         uniq = len(set(shots)) - emails
-        text(x + 28, y + 74, f"{len(lanes)} {T['uc']} · {uniq} {T['screens']}" + (f" · {emails} {T['emails']}" if emails else '') + f"  ·  {a['file']}", 18, 6, MUTED)
+        text(x + 28, y + 74, f"{len(lanes)} {T['uc']} · {uniq} {T['screens']}" + (f" · {emails} {T['email1'] if emails == 1 else T['emails']}" if emails else '') + f"  ·  {a['file']}", 18, 6, MUTED)
         thumb = a.get('thumb') or (shots[0] if shots else None)
         if thumb:
             image(x + 28, y + 110, TW - 56, IMG_H, thumb)

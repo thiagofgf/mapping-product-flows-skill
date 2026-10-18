@@ -1,0 +1,34 @@
+{
+  "title": "Access and account",
+  "subtitle": "Tasklet, a fictional to-do app for small teams. Persona Ana Lima (Northwind Bakery) signs up, signs in with Lumen ID (a fictional identity provider), and fails a sign-in. Static demo pages, captured with Playwright.",
+  "lang": "en",
+  "columns": 5,
+  "lanes": [
+    {"code": "UC-ACC-01", "title": "Create an account with e-mail", "state": "prod",
+     "desc": "Work e-mail and password (at least 8 characters). Tasklet sends a confirmation link; the link opens the team space.",
+     "steps": [
+       {"title": "Sign up", "shot": "shots/access/01-signup.png", "route": "/signup"},
+       {"title": "Password too short", "shot": "shots/access/02-signup-short-password.png", "route": "/signup", "via": "Create account", "desc": "\"Password must be at least 8 characters.\""},
+       {"title": "Check your e-mail", "shot": "shots/access/03-check-email.png", "route": "/check-email", "via": "fixes it"},
+       {"title": "Confirmation e-mail", "shot": "shots/access/04-email-confirm.png", "route": "e-mail", "kind": "email", "via": "e-mail", "dashed": true, "desc": "From noreply@tasklet.example."},
+       {"title": "Team space", "shot": "shots/access/09-signed-in.png", "route": "/tasks", "via": "Confirm my e-mail"}]},
+    {"code": "UC-ACC-02", "title": "Sign in with Lumen ID", "state": "prod",
+     "desc": "\"Continue with Lumen ID\" opens the provider's account chooser. Choosing the account returns to the team space.",
+     "steps": [
+       {"title": "Sign up", "shot": "shots/access/01-signup.png", "route": "/signup"},
+       {"title": "Choose an account", "shot": "shots/access/08-provider.png", "route": "id.lumen.example", "kind": "finding", "via": "Continue with Lumen ID", "desc": "Says \"to continue to auth.tasklet-infra.example\", not Tasklet."},
+       {"title": "Consent", "shot": null, "note": "A real provider account is needed past this point; not capturable.", "kind": "thirdparty", "dashed": true, "via": "Ana Lima"},
+       {"title": "Team space", "shot": "shots/access/09-signed-in.png", "route": "/tasks", "via": "callback"}]},
+    {"code": "UC-ACC-03", "title": "Sign in and get the password wrong", "state": "prod",
+     "desc": "E-mail and password. A wrong password shows a generic error that does not say which field is wrong.",
+     "steps": [
+       {"title": "Sign in", "shot": "shots/access/05-login.png", "route": "/login"},
+       {"title": "Wrong password", "shot": "shots/access/06-login-wrong.png", "route": "/login", "via": "Sign in", "desc": "\"Incorrect e-mail or password.\""}]},
+    {"code": "UC-ACC-04", "title": "Variation: reset a forgotten password", "state": "prod",
+     "desc": "The sign-in page offers \"Forgot password?\". The link leads nowhere.",
+     "steps": [
+       {"title": "Sign in", "shot": "shots/access/05-login.png", "route": "/login"},
+       {"title": "404", "shot": "shots/access/07-forgot-404.png", "route": "/forgot", "kind": "finding", "via": "Forgot password?", "desc": "No reset page exists."}]}
+  ],
+  "notes": [{"kind": "finding", "title": "Loose ends in this area", "body": "• Lumen ID shows the infrastructure domain auth.tasklet-infra.example instead of the app name (configure the provider's app name and a branded auth domain).\n• \"Forgot password?\" leads to a 404: there is no way to recover an account."}]
+}

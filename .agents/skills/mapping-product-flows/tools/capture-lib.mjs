@@ -81,7 +81,7 @@ export async function session(journey, persona = 'Marina', opts = {}) {
 export async function run(journey, persona, body, opts) {
   const s = await session(journey, persona, opts)
   try {
-    if (!fs.existsSync(`${DIR}/auth/${persona}.json`) || opts?.relogin) await s.login(persona)
+    if (!fs.existsSync(`${DIR}/auth/${persona}.json`) || opts?.relogin || opts?.fresh) await s.login(persona)
     await body(s)
   } catch (e) {
     console.log('FAILED:', String(e.message).split('\n')[0])

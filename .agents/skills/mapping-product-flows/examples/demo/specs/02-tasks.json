@@ -1,0 +1,22 @@
+{
+  "title": "Tasks",
+  "subtitle": "Northwind Bakery's team space in Tasklet, as Ana Lima. Five seeded tasks spread over overdue, this week, later and no date so every filter has results.",
+  "lang": "en",
+  "columns": 5,
+  "lanes": [
+    {"code": "UC-TSK-01", "title": "Create a task and assign it", "state": "prod",
+     "desc": "New task asks for title, due date and assignee. The task appears at the top of the list and the assignee gets an e-mail.",
+     "steps": [
+       {"title": "Tasks", "shot": "shots/tasks/01-tasks.png", "route": "/tasks"},
+       {"title": "New task", "shot": "shots/tasks/02-new-task.png", "route": "/tasks", "via": "New task"},
+       {"title": "Created", "shot": "shots/tasks/03-task-created.png", "route": "/tasks", "via": "Create task", "desc": "\"Task created and assigned to Rui\"."},
+       {"title": "E-mail to Rui", "shot": "shots/tasks/04-email-assigned.png", "route": "e-mail", "kind": "email", "via": "e-mail", "dashed": true, "desc": "\"Ana assigned you a task\"."}]},
+    {"code": "UC-TSK-02", "title": "Filter tasks by due date", "state": "prod",
+     "desc": "Chips filter the list: all, due this week, overdue, assigned to me. The filter lives in the URL, so a filtered view can be shared.",
+     "steps": [
+       {"title": "All", "shot": "shots/tasks/01-tasks.png", "route": "/tasks"},
+       {"title": "Due this week", "shot": "shots/tasks/05-filter-week.png", "route": "?f=week", "via": "Due this week"},
+       {"title": "Overdue", "shot": "shots/tasks/06-filter-late.png", "route": "?f=late", "via": "Overdue"},
+       {"title": "Empty filter", "shot": "shots/tasks/07-filter-empty.png", "route": "?f=none", "via": "shared link", "desc": "\"No tasks here.\""}]}
+  ]
+}

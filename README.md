@@ -34,6 +34,29 @@ app's own APIs.
 
 Labels default to English; set `"lang": "pt"` in a spec for Portuguese.
 
+## Example
+
+[`examples/demo`](.agents/skills/mapping-product-flows/examples/demo) maps
+**Tasklet**, a fictional to-do app for small teams, end to end: static demo
+pages, the capture script, the board specs, and the generated boards, PNGs and
+catalog. It has 6 use cases over 2 area boards, 2 e-mails, a fictional
+identity provider and two loose ends planted on purpose. Match its shape when
+mapping a real app.
+
+**Overview board** (`output/00-overview`): totals, one tile per area, findings by severity.
+
+![Tasklet overview board](.agents/skills/mapping-product-flows/examples/demo/output/00-overview.png)
+
+**Area board** (`output/01-access`): one lane per use case, real screenshots,
+arrows labelled with the exact button text, e-mail and third-party steps, a
+variation lane and the area's loose ends.
+
+![Tasklet access board](.agents/skills/mapping-product-flows/examples/demo/output/01-access.png)
+
+The catalog generated from the same specs is
+[`output/use-case-catalog.md`](.agents/skills/mapping-product-flows/examples/demo/output/use-case-catalog.md).
+Regenerate everything with `FLOWMAP_PKG=/path/to/project-with-playwright/package.json examples/demo/build.sh`.
+
 ## Install
 
 ### Codex
@@ -82,8 +105,15 @@ Code compatibility, link `.claude/skills` to `../.agents/skills`.
     │   ├── build_index.py       overview board
     │   └── gen_md.py            use-case catalog from the specs
     └── examples/
-        ├── board-spec.json
-        └── catalog-header.md
+        ├── board-spec.json      minimal board spec
+        ├── catalog-header.md    catalog header template
+        └── demo/                complete worked example (fictional app)
+            ├── app/             static demo pages
+            ├── capture.mjs      Playwright capture, one screenshot per step
+            ├── specs/           board, index and catalog inputs
+            ├── shots/           captured screenshots
+            ├── output/          .excalidraw, .png and the catalog
+            └── build.sh         regenerate all of it
 .claude/skills -> ../.agents/skills
 ```
 

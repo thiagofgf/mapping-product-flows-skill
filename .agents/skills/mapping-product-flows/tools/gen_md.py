@@ -15,7 +15,7 @@ out = [header, '', T['size'] + ' ' + ', '.join(f'{n} {l}' for n, l in idx['kpis'
        T['table'], '|---|---|---|---|']
 specs = [(a, json.load(open(a['spec']))) for a in idx['areas']]
 for a, d in specs:
-    em = {s['shot'] for l in d['lanes'] for s in l['steps'] if s.get('kind') == 'email'}
+    em = {s['shot'] for l in d['lanes'] for s in l['steps'] if s.get('kind') == 'email' and s.get('shot')}
     sh = {s['shot'] for l in d['lanes'] for s in l['steps'] if s.get('shot')} - em
     out.append(f"| `{a['file']}` | {a['name']} | {len(d['lanes'])} | {len(sh)} |")
 out += ['', '---', '']

@@ -1,0 +1,15 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Tasklet · Tasks</title><link rel="stylesheet" href="style.css"></head><body>
+<div class="top"><div class="logo" style="margin:0">task<span>let</span></div><nav><a class="on" href="tasks.html">Tasks</a> &nbsp; <a href="#">Team</a> &nbsp; <a href="#">Settings</a></nav><div class="me">A</div></div>
+<div class="page"><div class="head"><div><h1 style="margin:0">Northwind Bakery</h1><span class="due">5 open tasks</span></div><button id="add">New task</button></div>
+<div class="filters"><a class="chip" data-f="all">All</a><a class="chip" data-f="week">Due this week</a><a class="chip" data-f="late">Overdue</a><a class="chip" data-f="mine">Assigned to me</a></div>
+<div class="list" id="list"></div></div><div id="slot"></div>
+<script>
+const T=[{t:'Order flour for the weekend',d:'Overdue · Oct 14',k:'late',w:'Bruno'},{t:'Update the Saturday menu',d:'Oct 20',k:'week',w:'Ana'},{t:'Fix the oven timer',d:'Oct 22',k:'week',w:'Rui'},{t:'Plan the holiday boxes',d:'Nov 30',k:'later',w:'Ana'},{t:'Renew the delivery permit',d:'No date',k:'none',w:'Bruno'}];
+const q=new URLSearchParams(location.search),f=q.get('f')||'all';
+if(q.get('created'))T.unshift({t:q.get('created'),d:'Oct 21',k:'week',w:'Rui',n:1});
+document.querySelectorAll('.chip').forEach(c=>{c.href='?f='+c.dataset.f+(q.get('created')?'&created='+encodeURIComponent(q.get('created')):'');if(c.dataset.f===f)c.classList.add('on')});
+const show=T.filter(x=>f==='all'||(f==='mine'?x.w==='Ana':x.k===f));
+list.innerHTML=show.length?show.map(x=>`<div class="item ${x.n?'new':''}"><div class="box"></div><div class="t">${x.t}</div><span class="due ${x.k==='late'?'late':''}">${x.d}</span><span class="who">${x.w}</span></div>`).join(''):'<div class="empty">No tasks here.</div>';
+if(q.get('created'))slot.innerHTML='<div class="toast">Task created and assigned to Rui</div>';
+add.onclick=()=>{slot.innerHTML=`<div class="modal-bg"><div class="modal"><h2>New task</h2><p class="sub">Everyone in the team space can see it.</p><label>Title</label><input id="nt" value="Bake samples for the café fair"><div class="row"><div style="flex:1"><label>Due date</label><input value="2026-10-21"></div><div style="flex:1"><label>Assignee</label><select><option>Rui</option></select></div></div><div class="actions"><button class="ghost btn" onclick="slot.innerHTML=''">Cancel</button><button id="save" onclick="location='tasks.html?created='+encodeURIComponent(nt.value)">Create task</button></div></div></div>`}
+</script></body></html>

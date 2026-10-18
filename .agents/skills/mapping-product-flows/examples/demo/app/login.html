@@ -1,0 +1,5 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Tasklet · Sign in</title><link rel="stylesheet" href="style.css"></head><body>
+<div class="auth"><div class="logo">task<span>let</span></div><h1>Welcome back</h1><p class="sub">Sign in to your team space.</p>
+<form id="f"><label>E-mail</label><input id="email" value="ana@northwind.example"><label>Password</label><input id="pw" type="password"><div id="err"></div><button class="full" type="submit">Sign in</button></form>
+<p class="alt"><a href="forgot.html">Forgot password?</a> · <a href="signup.html">Create an account</a></p></div>
+<script>f.onsubmit=e=>{e.preventDefault();if(pw.value!=='correct horse'){err.innerHTML='<div class="error">Incorrect e-mail or password.</div>';return}location='tasks.html'}</script></body></html>

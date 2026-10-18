@@ -1,0 +1,6 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Tasklet · Sign up</title><link rel="stylesheet" href="style.css"></head><body>
+<div class="auth"><div class="logo">task<span>let</span></div><h1>Create your team space</h1><p class="sub">Shared to-dos for small teams.</p>
+<form id="f"><label>Work e-mail</label><input id="email" placeholder="you@company.com"><label>Password</label><input id="pw" type="password" placeholder="At least 8 characters"><div id="err"></div>
+<button class="full" type="submit">Create account</button></form><div class="divider">or</div><a class="btn ghost full" style="text-align:center" href="provider.html">Continue with Lumen ID</a>
+<p class="alt">Already have an account? <a href="login.html">Sign in</a></p></div>
+<script>f.onsubmit=e=>{e.preventDefault();if(pw.value.length<8){err.innerHTML='<div class="error">Password must be at least 8 characters.</div>';return}location='check-email.html?e='+encodeURIComponent(email.value)}</script></body></html>
