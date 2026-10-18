@@ -9,7 +9,8 @@ spec = {
     "code": "UC-BRD-06", "title": str, "desc": str, "state": "prod" | "flag" | "outside" | "dormant",
     "steps": [{"title": str, "shot": "path.png" | null, "note": str, "route": str, "desc": str,
                "kind": "screen" | "external" | "email" | "thirdparty" | "side", "via": "label of the arrow INTO this step",
-               "dashed": bool}]
+               "dashed": bool,      # dashed card border (and, by default, the arrow into it)
+               "dashed_in": bool}]  # override for the incoming arrow only
   }],
   "notes": [{"title": str, "body": str, "kind": "note" | "finding"}]   # optional panel at the end
 }
@@ -164,14 +165,14 @@ for lane in spec['lanes']:
                 px, py, ph, prow = prev
                 if prow == r_i:  # same row: straight arrow between cards
                     a = (px + CARD_W + 10, py + 54 + THUMB_H / 2)
-                    arrow(a, None, [[0, 0], [GAP_X - 20, 0]], s.get('via'), s.get('dashed_in', False))
+                    arrow(a, None, [[0, 0], [GAP_X - 20, 0]], s.get('via'), s.get('dashed_in', s.get('dashed', False)))
                 else:  # row wrap: down from the previous card, along the gap, into this card's top
                     a = (px + CARD_W / 2, py + ph + 10)
                     mid = ROW_GAP / 2 - 10
                     dx = (x + CARD_W / 2) - a[0]
                     pts = [[0, 0], [0, mid], [dx, mid], [dx, ROW_GAP - 20]]
                     lbl = s.get('via')
-                    arrow(a, None, pts, None, s.get('dashed_in', False))
+                    arrow(a, None, pts, None, s.get('dashed_in', s.get('dashed', False)))
                     if lbl:
                         text(a[0] + dx / 2 - len(lbl) * char_w(17, 6) / 2, a[1] + mid - 26, lbl, size=17, family=6,
                              color='#343a40', w=len(lbl) * char_w(17, 6))
