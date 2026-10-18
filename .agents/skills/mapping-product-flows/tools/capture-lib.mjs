@@ -36,13 +36,15 @@ export async function session(journey, persona = 'Marina', opts = {}) {
   })
   const page = await ctx.newPage()
   page.setDefaultTimeout(15000)
-  const steps = fs.existsSync(`${out}/steps.json`) && opts.append ? JSON.parse(fs.readFileSync(`${out}/steps.json`)) : []
+  const steps = fs.existsSync(`${out}/steps.json`) && opts.append ? JSON.parse(fs.readFileSync(`${out}/steps.json`, 'utf8')) : []
   const s = {
     browser, ctx, page, out, steps,
     async login(who = persona) {
       await page.goto(BASE + '/beta')
       if (page.url().includes('/beta')) {
-        await page.fill('input[name=password]', process.env.FLOWMAP_GATE_PASSWORD || ''); await page.click('button[type=submit]')
+        const gate = process.env.FLOWMAP_GATE_PASSWORD
+        if (!gate) throw new Error('FLOWMAP_GATE_PASSWORD is not set, and the app shows a password gate')
+        await page.fill('input[name=password]', gate); await page.click('button[type=submit]')
         await page.waitForURL(u => !u.pathname.startsWith('/beta'))
       }
       if (!page.url().includes('/login')) await page.goto(BASE + '/login')
