@@ -148,7 +148,7 @@ for lane in spec['lanes']:
             stroke, fill = KIND[kind]
             x = c_i * (CARD_W + GAP_X)
             rect(x, y, CARD_W, row_h, stroke, fill, dashed=kind in ('external', 'side') or s.get('dashed', False))
-            n = steps.index(s) + 1
+            n = r_i * COLS + c_i + 1
             text(x + 16, y + 14, wrap(f"{n}. {s['title']}", CARD_W - 32, 22, 5), size=22, family=5)
             if s.get('shot'):
                 image(x + 16, y + 54, s['shot'])

@@ -5,12 +5,12 @@ spec = json.load(open(sys.argv[1])); OUT = sys.argv[2]
 INK, MUTED = '#1e1e1e', '#5c5f66'
 LANG = spec.get('lang', 'en')  # 'en' (default) or 'pt'
 T = {'en': dict(sev={'high': 'High', 'medium': 'Medium', 'low': 'Low'}, uc='use cases', screens='screens', emails='e-mails', findings='Loose ends, by severity',
-                state={'prod': 'In production', 'flag': 'Behind a flag', 'dormant': 'Hidden in the UI'}),
+                state={'prod': 'In production', 'flag': 'Behind a flag', 'dormant': 'Hidden in the UI', 'outside': 'Outside the app'}),
      'pt': dict(sev={'high': 'Alto', 'medium': 'Médio', 'low': 'Baixo'}, uc='casos de uso', screens='telas', emails='e-mails', findings='Pontas soltas, por gravidade',
-                state={'prod': 'Em produção', 'flag': 'Atrás de flag', 'dormant': 'Escondido na UI'})}[LANG]
+                state={'prod': 'Em produção', 'flag': 'Atrás de flag', 'dormant': 'Escondido na UI', 'outside': 'Fora do app'})}[LANG]
 SEV_KEY = {'high': 'high', 'alto': 'high', 'medium': 'medium', 'médio': 'medium', 'medio': 'medium', 'low': 'low', 'baixo': 'low'}
 SEV_COLORS = {'high': ('#c92a2a', '#fff5f5'), 'medium': ('#e67700', '#fff9db'), 'low': ('#495057', '#f8f9fa')}
-STATE = {k: (T['state'][k],) + c for k, c in {'prod': ('#2f9e44', '#ebfbee'), 'flag': ('#e67700', '#fff9db'), 'dormant': ('#7048e8', '#f3f0ff')}.items()}
+STATE = {k: (T['state'][k],) + c for k, c in {'prod': ('#2f9e44', '#ebfbee'), 'flag': ('#e67700', '#fff9db'), 'dormant': ('#7048e8', '#f3f0ff'), 'outside': ('#868e96', '#f1f3f5')}.items()}
 els, files, seq = [], {}, [0]
 def base(**kw):
     seq[0] += 1
@@ -32,7 +32,8 @@ def rect(x, y, w, h, stroke, fill, sw=1, rough=0, dashed=False):
                     strokeStyle='dashed' if dashed else 'solid', roundness={'type': 3}))
 def image(x, y, w, h, path):
     raw = open(path, 'rb').read(); fid = hashlib.sha1(raw).hexdigest()
-    files[fid] = dict(mimeType='image/png', id=fid, created=1, dataURL='data:image/png;base64,' + base64.b64encode(raw).decode())
+    mime = 'image/jpeg' if path.lower().endswith(('.jpg', '.jpeg')) else 'image/png'
+    files[fid] = dict(mimeType=mime, id=fid, created=1, dataURL=f'data:{mime};base64,' + base64.b64encode(raw).decode())
     els.append(base(id=f'i{seq[0]}', type='image', x=x, y=y, width=w, height=h, fileId=fid, status='saved', scale=[1, 1], crop=None, strokeWidth=1, roughness=0))
     els.append(base(id=f'f{seq[0]}', type='rectangle', x=x, y=y, width=w, height=h, strokeColor='#ced4da', strokeWidth=1, roughness=0))
 COLS, TW, GAP = 4, 760, 50

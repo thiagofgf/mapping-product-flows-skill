@@ -28,7 +28,7 @@ States: 🟢 production · 🟡 behind a flag off in production · 🟣 hidden i
 ## Workflow
 
 1. **Current code.** `git fetch`; capture from a fresh worktree at `origin/main`.
-2. **Inventory from the UI, not the routes.** `tools/extract_controls.py <app source dir>` (aria-label, title, placeholder, button text per component), cross-checked with feature records (FDR/ADR), email templates, notification kinds and flags. A use case is a complete action (filter a board by due date; mention someone until the e-mail arrives), not a screen. Check whether a whole area is deliberately hidden from navigation before mapping it as a journey.
+2. **Inventory from the UI, not the routes.** `tools/extract_controls.py <app source dir> [out.json]` (aria-label, title, placeholder, button text per component), cross-checked with feature records (FDR/ADR), email templates, notification kinds and flags. A use case is a complete action (filter a board by due date; mention someone until the e-mail arrives), not a screen. Check whether a whole area is deliberately hidden from navigation before mapping it as a journey.
 3. **Make local look like production.** Do every check in [production-parity.md](production-parity.md).
 4. **Seed a believable world through the app's own APIs**, several personas with different roles plus one outsider; dates spread so every filter has results; real files so previews render. Do UI-only side effects (notifications, activity) through the UI during capture.
 5. **Capture** with `tools/capture-lib.mjs` (env-configured; `step()` keeps a journey going past one broken selector). Read [capture-pitfalls.md](capture-pitfalls.md) before the first script.
