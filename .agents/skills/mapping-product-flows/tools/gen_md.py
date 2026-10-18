@@ -3,7 +3,16 @@ Usage: gen_md.py index.json header.md out.md
   header.md  title, base commit, personas, states legend, flag table (written by hand once)
   index.json the build_index.py spec: kpis, areas [{n, name, spec, file}], findings [[severity, text]]"""
 import json, sys
-idx = json.load(open(sys.argv[1])); header = open(sys.argv[2]).read().rstrip()
+def read_json(path):
+    with open(path) as fh:
+        return json.load(fh)
+
+
+if len(sys.argv) < 4:
+    sys.exit('usage: gen_md.py index.json header.md out.md')
+idx = read_json(sys.argv[1])
+with open(sys.argv[2]) as fh:
+    header = fh.read().rstrip()
 LANG = idx.get('lang', 'en')  # 'en' (default) or 'pt'
 T = {'en': dict(kind={'email': ' [e-mail]', 'thirdparty': ' [third party]', 'external': ' [outside the app]', 'finding': ' [loose end]'},
                 size='**Product size:**', table='| Board | Area | Use cases | Screens |', steps='Steps: ', findings='## Loose ends, by severity', ftable='| Severity | Finding |'),
@@ -13,7 +22,7 @@ ICON = {'prod': '🟢', 'flag': '🟡', 'dormant': '🟣', 'outside': '⚪'}
 KIND = T['kind']
 out = [header, '', T['size'] + ' ' + ', '.join(f'{n} {l}' for n, l in idx['kpis']) + '.', '',
        T['table'], '|---|---|---|---|']
-specs = [(a, json.load(open(a['spec']))) for a in idx['areas']]
+specs = [(a, read_json(a['spec'])) for a in idx['areas']]
 for a, d in specs:
     em = {s['shot'] for l in d['lanes'] for s in l['steps'] if s.get('kind') == 'email' and s.get('shot')}
     sh = {s['shot'] for l in d['lanes'] for s in l['steps'] if s.get('shot')} - em
@@ -34,5 +43,6 @@ for a, d in specs:
     out += ['---', '']
 out += [T['findings'], '', T['ftable'], '|---|---|']
 out += [f'| {sev} | {t.replace("|", "/")} |' for sev, t in idx['findings']]
-open(sys.argv[3], 'w').write('\n'.join(out) + '\n')
+with open(sys.argv[3], 'w') as fh:
+    fh.write('\n'.join(out) + '\n')
 print(sys.argv[3], sum(len(d['lanes']) for _, d in specs), 'use cases')

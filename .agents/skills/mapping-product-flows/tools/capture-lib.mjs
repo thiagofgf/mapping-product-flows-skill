@@ -16,6 +16,11 @@ const DIR = process.env.FLOWMAP_DIR || '/tmp/flowmap'
 export const WS = BASE + (process.env.FLOWMAP_WS || '')
 // Path only: query strings and hashes can carry auth codes and tokens, so they are never logged or saved.
 const safePath = u => u.replace(BASE, '').replace(/[?#].*$/, '')
+// Optional dump filter, compiled once; an invalid pattern is reported and ignored so the dump still prints.
+const DUMP_HIDE = (() => {
+  if (!process.env.FLOWMAP_DUMP_HIDE) return null
+  try { return new RegExp(process.env.FLOWMAP_DUMP_HIDE) } catch (e) { console.warn('FLOWMAP_DUMP_HIDE ignored:', e.message); return null }
+})()
 const STATE = fs.existsSync(`${DIR}/seed/state.json`) ? JSON.parse(fs.readFileSync(`${DIR}/seed/state.json`, 'utf8')) : { people: {} }
 export const PEOPLE = STATE.people
 export const SEED = STATE
@@ -66,7 +71,7 @@ export async function session(journey, persona = 'Marina', opts = {}) {
       const items = await page.locator('button, a, [role=button], [role=menuitem], [role=tab], [role=option], input, textarea, select').evaluateAll(els => els
         .filter(e => e.offsetParent !== null || e.getClientRects().length)
         .map(e => `${e.tagName.toLowerCase()}${e.getAttribute('role') ? '[' + e.getAttribute('role') + ']' : ''} ${(e.getAttribute('aria-label') || e.getAttribute('placeholder') || e.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 60)}`))
-      console.log(`--- controls ${label} (${safePath(page.url())}):\n` + [...new Set(items)].filter(x => !(process.env.FLOWMAP_DUMP_HIDE && new RegExp(process.env.FLOWMAP_DUMP_HIDE).test(x))).slice(0, 120).join('\n'))
+      console.log(`--- controls ${label} (${safePath(page.url())}):\n` + [...new Set(items)].filter(x => !(DUMP_HIDE && DUMP_HIDE.test(x))).slice(0, 120).join('\n'))
     },
     async close() { await browser.close() },
   }

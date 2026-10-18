@@ -1,7 +1,11 @@
 """Overview board: totals, one tile per area board (thumbnail + counts + use-case list), legend, ranked findings.
 Usage: build_index.py index.json out.excalidraw   (index.json: {title, subtitle, kpis:[[n,label]], areas:[{n,name,spec,file}], legend:[[label,stroke,fill]], findings:[[severity,text]], lang:"en"|"pt"}); severity is high|medium|low (or alto|médio|baixo)"""
 import base64, hashlib, json, sys, textwrap
-spec = json.load(open(sys.argv[1])); OUT = sys.argv[2]
+if len(sys.argv) < 3:
+    sys.exit('usage: build_index.py index.json out.excalidraw')
+with open(sys.argv[1]) as fh:
+    spec = json.load(fh)
+OUT = sys.argv[2]
 INK, MUTED = '#1e1e1e', '#5c5f66'
 LANG = spec.get('lang', 'en')  # 'en' (default) or 'pt'
 T = {'en': dict(sev={'high': 'High', 'medium': 'Medium', 'low': 'Low'}, uc='use cases', screens='screens', emails='e-mails', email1='e-mail', findings='Loose ends, by severity',
@@ -33,7 +37,9 @@ def rect(x, y, w, h, stroke, fill, sw=1, rough=0, dashed=False):
     els.append(base(id=f'r{seq[0]}', type='rectangle', x=x, y=y, width=w, height=h, strokeColor=stroke, backgroundColor=fill, strokeWidth=sw, roughness=rough,
                     strokeStyle='dashed' if dashed else 'solid', roundness={'type': 3}))
 def image(x, y, w, h, path):
-    raw = open(path, 'rb').read(); fid = hashlib.sha1(raw).hexdigest()
+    with open(path, 'rb') as fh:
+        raw = fh.read()
+    fid = hashlib.sha1(raw).hexdigest()
     mime = 'image/jpeg' if path.lower().endswith(('.jpg', '.jpeg')) else 'image/png'
     files[fid] = dict(mimeType=mime, id=fid, created=1, dataURL=f'data:{mime};base64,' + base64.b64encode(raw).decode())
     els.append(base(id=f'i{seq[0]}', type='image', x=x, y=y, width=w, height=h, fileId=fid, status='saved', scale=[1, 1], crop=None, strokeWidth=1, roughness=0))
@@ -55,7 +61,8 @@ y += 80
 for row in range(0, len(spec['areas']), COLS):
     chunk = spec['areas'][row:row + COLS]; tiles = []
     for a in chunk:
-        d = json.load(open(a['spec']))
+        with open(a['spec']) as fh:
+            d = json.load(fh)
         lanes = d['lanes']; shots = [s['shot'] for l in lanes for s in l['steps'] if s.get('shot')]
         emails = len({s['shot'] for l in lanes for s in l['steps'] if s.get('kind') == 'email' and s.get('shot')})
         ucs = '\n'.join(wrap(f"{l['code']}  {l['title']}", TW - 60, 17, 6) for l in lanes)
@@ -79,7 +86,8 @@ fh = 84 + sum(max(34, 19 * 1.25 * (wrap(t, W - 220, 19, 6).count('\n') + 1) + 10
 rect(0, y, W, fh, '#c92a2a', '#fffafa')
 text(30, y + 24, T['findings'], 32, 5); fy = y + 84
 for sev, t in spec['findings']:
-    k = SEV_KEY[sev.lower()]; s, f = SEV_COLORS[k]; rect(30, fy, 110, 30, s, f); text(45, fy + 5, T['sev'][k], 17, 6, s)
+    k = SEV_KEY.get(sev.lower(), 'low'); s, f = SEV_COLORS[k]; rect(30, fy, 110, 30, s, f); text(45, fy + 5, T['sev'][k], 17, 6, s)
     h = text(160, fy + 3, wrap(t, W - 220, 19, 6), 19, 6, '#343a40', w=W - 220); fy += max(34, h + 10)
-json.dump(dict(type='excalidraw', version=2, source='flowmap', elements=els, appState=dict(viewBackgroundColor='#ffffff', gridSize=None), files=files), open(OUT, 'w'))
+with open(OUT, 'w') as fh:
+    json.dump(dict(type='excalidraw', version=2, source='flowmap', elements=els, appState=dict(viewBackgroundColor='#ffffff', gridSize=None), files=files), fh)
 print(OUT, len(spec['areas']), 'areas')

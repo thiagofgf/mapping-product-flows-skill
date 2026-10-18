@@ -17,7 +17,10 @@ spec = {
 """
 import base64, hashlib, json, sys, textwrap
 
-spec = json.load(open(sys.argv[1]))
+if len(sys.argv) < 3:
+    sys.exit('usage: build_board.py spec.json out.excalidraw')
+with open(sys.argv[1]) as fh:
+    spec = json.load(fh)
 OUT = sys.argv[2]
 
 COLS = spec.get('columns', 5)
@@ -91,7 +94,8 @@ def rect(x, y, w, h, stroke, fill, dashed=False, rough=1, sw=2, rounded=True):
 
 
 def image(x, y, path):
-    raw = open(path, 'rb').read()
+    with open(path, 'rb') as fh:
+        raw = fh.read()
     fid = hashlib.sha1(raw).hexdigest()
     mime = 'image/jpeg' if path.lower().endswith(('.jpg', '.jpeg')) else 'image/png'
     files[fid] = dict(mimeType=mime, id=fid, created=1, dataURL=f'data:{mime};base64,' + base64.b64encode(raw).decode())
@@ -117,12 +121,17 @@ def arrow(a, b, pts, label=None, dashed=False, label_at=None):
         text(lx, ly, lbl, size=size, family=6, color='#343a40', w=lw)
 
 
+def note_extra(step):
+    """Height a note card needs beyond the thumbnail area; card_height and the text below the note both use it."""
+    if step.get('shot') or not step.get('note'):
+        return 0
+    return max(0, 40 + 24 * (wrap(step['note'], THUMB_W - 32, 19, 6).count('\n') + 1) - THUMB_H)
+
+
 def card_height(step):
     desc = wrap(step.get('desc', ''), THUMB_W, 16, 6) if step.get('desc') else ''
     route_h = 24 if step.get('route') else 0
-    if not step.get('shot') and step.get('note'):  # a note card draws wrapped text where the screenshot would be
-        note_h = 40 + 24 * (wrap(step['note'], THUMB_W - 32, 19, 6).count('\n') + 1)
-        route_h += max(0, note_h - THUMB_H)
+    route_h += note_extra(step)
     return 54 + THUMB_H + 40 + route_h + (desc.count('\n') + 1) * 20 + 14 if desc else 54 + THUMB_H + 48 + route_h
 
 
@@ -161,7 +170,7 @@ for lane in spec['lanes']:
                 image(x + 16, y + 54, s['shot'])
             else:
                 text(x + 32, y + 54 + 40, wrap(s.get('note', ''), THUMB_W - 32, 19, 6), size=19, family=6, color=MUTED, w=THUMB_W - 32)
-            ty = y + 54 + THUMB_H + 12
+            ty = y + 54 + THUMB_H + 12 + note_extra(s)
             if s.get('route'):
                 text(x + 16, ty, s['route'][:58], size=15, family=3, color=MUTED)
                 ty += 24
@@ -197,5 +206,6 @@ for note in spec.get('notes', []):
 
 doc = dict(type='excalidraw', version=2, source='flowmap', elements=elements,
            appState=dict(viewBackgroundColor='#ffffff', gridSize=None), files=files)
-json.dump(doc, open(OUT, 'w'))
+with open(OUT, 'w') as fh:
+    json.dump(doc, fh)
 print(f'{OUT}: {len(spec["lanes"])} lanes, {sum(len(l["steps"]) for l in spec["lanes"])} steps, {len(files)} images')

@@ -11,12 +11,14 @@ for dp, _, fs in os.walk(ROOT):
     for f in fs:
         p = os.path.join(dp, f)
         if not f.endswith('.tsx') or any(s in p for s in SKIP): continue
-        src = open(p).read()
+        with open(p) as fh:
+            src = fh.read()
         found = set(m.strip() for m in attr.findall(src) + btn.findall(src) + label_kv.findall(src))
         found = sorted(x for x in found if not x.startswith(('${', 'e.g', 'http')) and re.search('[a-z]', x))
         if found: out[os.path.relpath(p, ROOT)] = found
 os.makedirs(os.path.dirname(os.path.abspath(OUT)), exist_ok=True)
-json.dump(out, open(OUT, 'w'), indent=1, ensure_ascii=False)
+with open(OUT, 'w') as fh:
+    json.dump(out, fh, indent=1, ensure_ascii=False)
 tot = sum(len(v) for v in out.values())
 print(len(out), 'components,', tot, 'labels')
 for k in sorted(out, key=lambda k: -len(out[k]))[:45]: print(f'{len(out[k]):4d} {k}')
