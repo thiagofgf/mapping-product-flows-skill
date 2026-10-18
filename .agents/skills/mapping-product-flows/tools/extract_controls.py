@@ -1,0 +1,20 @@
+"""Extract user-facing control labels per component: aria-label, title, placeholder, and button/menu text."""
+import os, re, sys, json
+ROOT = sys.argv[1] if len(sys.argv) > 1 else 'src/app'  # usage: extract_controls.py <app source dir>
+SKIP = ('(platform-admin)', '__tests__', '.test.', '/api/')
+attr = re.compile(r'''(?:aria-label|title|placeholder|label)=["{]`?([^"`}]{3,80})["`}]''')
+btn = re.compile(r'<(?:button|Button|DropdownMenuItem|MenuItem|Link|a)\b[^>]*>\s*(?:\{[^}]*\}\s*)*([A-Z][^<>{}\n]{2,60}?)\s*<')
+label_kv = re.compile(r'''\blabel:\s*['"]([^'"]{3,60})['"]''')
+out = {}
+for dp, _, fs in os.walk(ROOT):
+    for f in fs:
+        p = os.path.join(dp, f)
+        if not f.endswith('.tsx') or any(s in p for s in SKIP): continue
+        src = open(p).read()
+        found = set(m.strip() for m in attr.findall(src) + btn.findall(src) + label_kv.findall(src))
+        found = sorted(x for x in found if not x.startswith(('${', 'e.g', 'http')) and re.search('[a-z]', x))
+        if found: out[os.path.relpath(p, ROOT)] = found
+json.dump(out, open('/tmp/flowmap/inventory/controls.json', 'w'), indent=1, ensure_ascii=False)
+tot = sum(len(v) for v in out.values())
+print(len(out), 'components,', tot, 'labels')
+for k in sorted(out, key=lambda k: -len(out[k]))[:45]: print(f'{len(out[k]):4d} {k}')

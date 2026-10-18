@@ -1,0 +1,21 @@
+{
+  "title": "Sign-in and account",
+  "subtitle": "Fictional persona Ana Lima signs up, signs out and resets her password. Production flags, commit abc1234.",
+  "lang": "en",
+  "columns": 4,
+  "lanes": [
+    {
+      "code": "UC-ACC-01",
+      "title": "Create an account with e-mail",
+      "desc": "Sign up, confirm the e-mail, land on the first screen.",
+      "state": "prod",
+      "steps": [
+        {"title": "Sign up", "shot": "shots/acc/01-signup.png", "route": "/signup"},
+        {"title": "Check your e-mail", "shot": "shots/acc/02-check-email.png", "route": "/signup", "via": "Create account"},
+        {"title": "Confirmation e-mail", "shot": "shots/emails/confirm.png", "route": "e-mail", "kind": "email", "via": "e-mail"},
+        {"title": "Real third-party step", "shot": null, "note": "Needs a real account; not capturable.", "kind": "thirdparty", "dashed": true, "via": "Confirm"}
+      ]
+    }
+  ],
+  "notes": [{"kind": "finding", "title": "Loose ends in this area", "body": "• One line per verified finding, with file:line."}]
+}
